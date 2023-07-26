@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
-	"net/url"
 
 	"github.com/owenrumney/go-github-pr-commenter/commenter"
 )
@@ -58,8 +58,8 @@ func main() {
 
 	workingDir := os.Getenv("INPUT_WORKING_DIRECTORY")
 	if workingDir != "" {
-		workingDir = strings.TrimPrefix(workingDir, "./")
 		workingDir = strings.TrimSuffix(workingDir, "/") + "/"
+		workingDir = strings.TrimPrefix(workingDir, "./")
 	}
 
 	var errMessages []string
@@ -113,7 +113,7 @@ func createCommenter(token, owner, repo string, prNo int) (*commenter.Commenter,
 		url, err := url.Parse(githubApiUrl)
 		if err == nil {
 			enterpriseUrl := fmt.Sprintf("%s://%s", url.Scheme, url.Hostname())
-			c, err = commenter.NewEnterpriseCommenter(token, enterpriseUrl, enterpriseUrl, owner, repo, prNo)	
+			c, err = commenter.NewEnterpriseCommenter(token, enterpriseUrl, enterpriseUrl, owner, repo, prNo)
 		}
 	}
 
@@ -129,7 +129,7 @@ More information available %s`,
 }
 
 func extractPullRequestNumber() (int, error) {
-	github_event_file := "/github/workflow/event.json"
+	github_event_file := os.Getenv("GITHUB_EVENT_PATH")
 	file, err := ioutil.ReadFile(github_event_file)
 	if err != nil {
 		fail(fmt.Sprintf("GitHub event payload not found in %s", github_event_file))
